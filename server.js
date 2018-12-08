@@ -1,6 +1,6 @@
 //TODO: rename as "blockly.io".
 var hostname = process.argv[2] || "0.0.0.0";
-var port = parseInt(process.argv[3]) || 3000;
+var port = process.env.PORT || 3000;
 
 var finalhandler = require('finalhandler');
 var http = require('http');
