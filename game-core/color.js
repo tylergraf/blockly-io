@@ -5,7 +5,7 @@ function Color(h, s, l, a)
   verifyRange(h, s, l);
   if (a === undefined) a = 1;
   else verifyRange(a);
-  
+
   Object.defineProperties(this, {
     "hue": {value: h, enumerable: true},
     "sat": {value: s, enumerable: true},
@@ -32,7 +32,7 @@ Color.prototype.interpolateToString = function(color, amount)
   var rgbThis = hslToRgb(this.hue, this.sat, this.lum);
   var rgbThat = hslToRgb(color.hue, color.sat, color.lum);
   var rgb = [];
-  
+
   for (var i = 0; i < 3; i++)
     rgb[i] = Math.floor((rgbThat[i] - rgbThis[i]) * amount + rgbThis[i]);
   return {rgbString: function() {return 'rgb(' + rgb[0] + ', ' + rgb[1] + ', ' + rgb[2] + ')'}};

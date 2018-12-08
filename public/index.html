@@ -1,25 +1,27 @@
-<head>
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+  <head>
+    <meta charset="utf-8">
+    <title>Blocky.io</title>
+    <meta name="viewport" content="width=device-width,minimum-scale=1,initial-scale=1,user-scalable=0">
     <link href="changa.css" rel="stylesheet">
     <link href="styles.css" rel="stylesheet">
-    <script src="jquery.min.js"></script>
-    <script src="bundle.js"></script>
-    <title>Blockly.IO</title>
-</head>
-<body>
+  </head>
+  <body>
+    <style>
+      form > div {
+        display: flex;
+        flex-flow: column;
+        align-items: flex-start;
+      }
+    </style>
+
+    <paper-toast id="toast"></paper-toast>
+    <blockly-game id="gameForm"></blockly-game>
+
     <canvas id="main-ui"></canvas>
-    <div id="stats" style="opacity: 0" class="fullscreen hidden"></div>
-    <div id="begin" style="opacity: .99999" class="fullscreen">
-        <div class="center">
-            <h1>Blockly.IO!</h1>
-            <small>Todo: replace ^^^ with a picture. Work in progress.</small><br>
-            
-            <h1>Enter your name</h1>
-            <input autocomplete="off" id="name" placeholder="An awesome name!">
-            <button type="submit">Play!</button>
-            <div>
-                <small id="error">Your browser does not support JavaScript!</small>
-            </div>
-            <small>Visit the open-source code on <a href="https://github.com/theKidOfArcrania/PaperIO-Web">GitHub</a>!</small>
-        </div>
-    </div>
-</body>
+
+    <script src="dist/game-bundle.js"></script>
+    <script src="dist/toast-bundle.js"></script>
+  </body>
+</html>

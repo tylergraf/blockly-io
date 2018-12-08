@@ -14,4 +14,3 @@ for (var prop in consts) {
     value: consts[prop]
   });
 }
-

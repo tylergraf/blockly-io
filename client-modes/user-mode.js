@@ -13,25 +13,25 @@ var ANIMATE_FRAMES = 24;
 var BOUNCE_FRAMES = [8, 4];
 var DROP_HEIGHT = 24;
 var DROP_SPEED = 2;
-var MIN_BAR_WIDTH = 65;
+var MIN_BAR_WIDTH = 50;
 var BAR_HEIGHT = SHADOW_OFFSET + CELL_WIDTH;
-var BAR_WIDTH = 400;
+var BAR_WIDTH = 200;
 
 var canvas, canvasWidth, canvasHeight, gameWidth, gameHeight, ctx, offctx, offscreenCanvas;
 
-$(function () {
-  canvas = $("#main-ui")[0];
+setTimeout(function () {
+  canvas = window['main-ui'];
   ctx = canvas.getContext('2d');
-  
+
   offscreenCanvas = document.createElement("canvas");
   offctx = offscreenCanvas.getContext('2d');
-  
+
   canvas.style.marginTop = 10;
   updateSize();
 });
 
 
-var animateGrid, playerPortion, portionsRolling, 
+var animateGrid, playerPortion, portionsRolling,
   barProportionRolling,  animateTo, offset, user, zoom, showedDead;
 var grid = client.grid;
 
@@ -43,38 +43,38 @@ function updateSize()
     gameWidth = canvasWidth = offscreenCanvas.width = canvas.width = window.innerWidth;
     changed = true;
   }
-  
+
   if (canvasHeight != window.innerHeight - 20)
   {
     canvasHeight = offscreenCanvas.height = canvas.height = window.innerHeight - 20;
     gameHeight = canvasHeight - BAR_HEIGHT;
     changed = true;
   }
-  
+
   if (changed && user)
     centerOnPlayer(user, offset);
 }
 
 function reset() {
   animateGrid = new core.Grid(GRID_SIZE);
-  
+
   playerPortion = [];
   portionsRolling = [];
   barProportionRolling = [];
-  
+
   animateTo = [0, 0];
   offset = [0, 0];
-  
+
   user = null;
   zoom = 1;
-  
+
   showedDead = false;
 }
 
 reset();
 
 //Paint methods.
-function paintGridBorder(ctx) 
+function paintGridBorder(ctx)
 {
   ctx.fillStyle = 'lightgray';
   var gridWidth = CELL_WIDTH * GRID_SIZE;
@@ -90,19 +90,19 @@ function paintGrid(ctx)
   //Paint background.
   ctx.fillStyle = "rgb(211, 225, 237)";
   ctx.fillRect(0, 0, CELL_WIDTH * GRID_SIZE, CELL_WIDTH * GRID_SIZE);
-  
+
   paintGridBorder(ctx);
   //paintGridLines(ctx);
-  
+
   //Get viewing limits
   var offsetX = (offset[0] - BORDER_WIDTH);
   var offsetY = (offset[1] - BORDER_WIDTH);
-  
-  var minRow = Math.max(Math.floor(offsetY / CELL_WIDTH), 0); 
-  var minCol = Math.max(Math.floor(offsetX / CELL_WIDTH), 0); 
-  var maxRow = Math.min(Math.ceil((offsetY + gameHeight / zoom) / CELL_WIDTH), grid.size); 
-  var maxCol = Math.min(Math.ceil((offsetX + gameWidth / zoom) / CELL_WIDTH), grid.size); 
-    
+
+  var minRow = Math.max(Math.floor(offsetY / CELL_WIDTH), 0);
+  var minCol = Math.max(Math.floor(offsetX / CELL_WIDTH), 0);
+  var maxRow = Math.min(Math.ceil((offsetY + gameHeight / zoom) / CELL_WIDTH), grid.size);
+  var maxCol = Math.min(Math.ceil((offsetX + gameWidth / zoom) / CELL_WIDTH), grid.size);
+
   //Paint occupied areas. (and fading ones).
   for (var r = minRow; r < maxRow; r++)
   {
@@ -110,7 +110,7 @@ function paintGrid(ctx)
     {
       var p = grid.get(r, c);
       var x = c * CELL_WIDTH, y = r * CELL_WIDTH, baseColor, shadowColor;
-      
+
       var animateSpec = animateGrid.get(r, c);
       if (client.allowAnimation && animateSpec)
       {
@@ -123,23 +123,18 @@ function paintGrid(ctx)
         }
         else
           continue;
-      } 
-      else if (p)
-      {
+      } else if (p) {
         baseColor = p.lightBaseColor;
         shadowColor = p.shadowColor;
-      }
-      else //No animation nor is this player owned. 
+      } else { //No animation nor is this player owned.
         continue;
-      
+      }
       var hasBottom = !grid.isOutOfBounds(r + 1, c);
       var bottomAnimate = hasBottom && animateGrid.get(r + 1, c);
       var totalStatic = !bottomAnimate && !animateSpec;
       var bottomEmpty = totalStatic ? (hasBottom && !grid.get(r + 1, c)) :
         (!bottomAnimate || (bottomAnimate.after && bottomAnimate.before));
-      if (hasBottom && ((!!bottomAnimate ^ !!animateSpec) || bottomEmpty))
-      {
-        
+      if (hasBottom && ((!!bottomAnimate ^ !!animateSpec) || bottomEmpty)){
         ctx.fillStyle = shadowColor.rgbString();
         ctx.fillRect(x, y + CELL_WIDTH, CELL_WIDTH + 1, SHADOW_OFFSET);
       }
@@ -147,10 +142,10 @@ function paintGrid(ctx)
       ctx.fillRect(x, y, CELL_WIDTH + 1, CELL_WIDTH + 1);
     }
   }
-  
+
   if (!client.allowAnimation)
     return;
-  
+
   //Paint squares with drop in animation.
   for (var r = 0; r < grid.size; r++)
   {
@@ -158,8 +153,8 @@ function paintGrid(ctx)
     {
       animateSpec = animateGrid.get(r, c);
       x = c * CELL_WIDTH, y = r * CELL_WIDTH;
-      
-      if (animateSpec && client.allowAnimation) 
+
+      if (animateSpec && client.allowAnimation)
       {
         var viewable = r >= minRow && r < maxRow && c >= minCol && c < maxCol;
         if (animateSpec.after && viewable)
@@ -167,16 +162,16 @@ function paintGrid(ctx)
           //Bouncing the squares.
           var offsetBounce = getBounceOffset(animateSpec.frame);
           y -= offsetBounce;
-          
+
           shadowColor = animateSpec.after.shadowColor;
           baseColor = animateSpec.after.lightBaseColor.deriveLumination(-(offsetBounce / DROP_HEIGHT) * .1);
-          
+
           ctx.fillStyle = shadowColor.rgbString();
           ctx.fillRect(x, y + CELL_WIDTH, CELL_WIDTH, SHADOW_OFFSET);
           ctx.fillStyle = baseColor.rgbString();
           ctx.fillRect(x, y, CELL_WIDTH + 1, CELL_WIDTH + 1);
         }
-        
+
         animateSpec.frame++;
         if (animateSpec.frame >= ANIMATE_FRAMES)
           animateGrid.set(r, c, null);
@@ -186,41 +181,40 @@ function paintGrid(ctx)
 }
 
 
-function paintUIBar(ctx)
-{
-  
+function paintUIBar(ctx) {
+
   //UI Bar background
   ctx.fillStyle = "#24422c";
   ctx.fillRect(0, 0, canvasWidth, BAR_HEIGHT);
-  
+
   var barOffset;
   ctx.fillStyle = "white";
   ctx.font = "24px Changa";
   barOffset = (user && user.name) ? (ctx.measureText(user.name).width + 20) : 0;
   ctx.fillText(user ? user.name : "", 5, CELL_WIDTH - 5);
-  
+
   //Draw filled bar.
   ctx.fillStyle = "rgba(180, 180, 180, .3)";
   ctx.fillRect(barOffset, 0, BAR_WIDTH, BAR_HEIGHT);
-  
+
   var userPortions = portionsRolling[user.num] ? portionsRolling[user.num].lag : 0;
   var barSize = Math.ceil((BAR_WIDTH - MIN_BAR_WIDTH) * userPortions + MIN_BAR_WIDTH);
   ctx.fillStyle = user ? user.baseColor.rgbString() : "";
   ctx.fillRect(barOffset, 0, barSize, CELL_WIDTH);
   ctx.fillStyle = user ? user.shadowColor.rgbString() : "";
   ctx.fillRect(barOffset, CELL_WIDTH, barSize, SHADOW_OFFSET);
-  
+
   //TODO: dont reset kill count and zoom when we request frames.
   //Percentage
   ctx.fillStyle = "white";
   ctx.font = "18px Changa";
   ctx.fillText((userPortions * 100).toFixed(3) + "%", 5 + barOffset, CELL_WIDTH - 5);
-  
+
   //Number of kills
   var killsText = "Kills: " + client.kills;
   var killsOffset = 20 + BAR_WIDTH + barOffset;
   ctx.fillText(killsText, killsOffset, CELL_WIDTH - 5);
-  
+
   //Calcuate rank
   var sorted = [];
   client.getPlayers().forEach(function(val) {
@@ -230,11 +224,11 @@ function paintUIBar(ctx)
     if (a.portion === b.portion) return a.player.num - b.player.num;
     else return b.portion - a.portion;
   });
- 
+
   var rank = sorted.findIndex(function(val) {return val.player === user});
-  ctx.fillText("Rank: " + (rank === -1 ? "--" : rank + 1) + " of " + sorted.length, 
+  ctx.fillText("Rank: " + (rank === -1 ? "--" : rank + 1) + " of " + sorted.length,
   ctx.measureText(killsText).width + killsOffset + 20, CELL_WIDTH - 5);
-  
+
   //Rolling the leaderboard bars.
   if (sorted.length > 0)
   {
@@ -245,7 +239,7 @@ function paintUIBar(ctx)
       rolling.update();
     });
   }
-  
+
   //Show leaderboard.
   var leaderboardNum = Math.min(5, sorted.length);
   for (var i = 0; i < leaderboardNum; i++)
@@ -253,47 +247,47 @@ function paintUIBar(ctx)
     var player = sorted[i].player;
     var name = player.name || "Unnamed";
     var portion = barProportionRolling[player.num].lag;
-    
+
     var nameWidth = ctx.measureText(name).width;
     barSize = Math.ceil((BAR_WIDTH - MIN_BAR_WIDTH) * portion + MIN_BAR_WIDTH);
     var barX = canvasWidth - barSize;
     var barY = BAR_HEIGHT * (i + 1);
     var offset = i == 0 ? 10 : 0;
-    
+
     ctx.fillStyle = 'rgba(10, 10, 10, .3)';
     ctx.fillRect(barX - 10, barY + 10 - offset, barSize + 10, BAR_HEIGHT + offset);
     ctx.fillStyle = player.baseColor.rgbString();
     ctx.fillRect(barX, barY, barSize, CELL_WIDTH);
     ctx.fillStyle = player.shadowColor.rgbString();
     ctx.fillRect(barX, barY + CELL_WIDTH, barSize, SHADOW_OFFSET);
-    
+
     ctx.fillStyle = "black";
     ctx.fillText(name, barX - nameWidth - 15, barY + 27);
-    
+
     var percentage = (portionsRolling[player.num].lag * 100).toFixed(3) + "%";
     ctx.fillStyle = "white";
     ctx.fillText(percentage, barX + 5, barY + CELL_WIDTH - 5);
   }
-  
+
 }
 
 function paint(ctx)
 {
-  
+
   ctx.fillStyle = '#e2ebf3';  //'whitesmoke';
   ctx.fillRect(0, 0, canvasWidth, canvasHeight);
-  
+
   //Move grid to viewport as said with the offsets, below the stats
   ctx.save();
   ctx.translate(0, BAR_HEIGHT);
   ctx.beginPath();
   ctx.rect(0, 0, gameWidth, gameHeight);
   ctx.clip();
-  
+
   //Zoom in/out based on player stats.
   ctx.scale(zoom, zoom);
   ctx.translate(-offset[0] + BORDER_WIDTH, -offset[1] + BORDER_WIDTH);
-  
+
   paintGrid(ctx);
   client.getPlayers().forEach(function (p) {
     var fr = p.waitLag;
@@ -302,11 +296,11 @@ function paint(ctx)
     else
       p.render(ctx);
   });
-  
+
   //Reset transform to paint fixed UI elements
   ctx.restore();
   paintUIBar(ctx);
-  
+
   if ((!user || user.dead) && !showedDead)
   {
     showedDead = true;
@@ -323,7 +317,7 @@ function paintDoubleBuff()
 
 function update() {
   updateSize();
-  
+
   //Change grid offsets.
   for (var i = 0; i <= 1; i++)
   {
@@ -340,18 +334,18 @@ function update() {
         offset[i] = animateTo[i];
     }
   }
-  
+
   //Calculate player portions.
   client.getPlayers().forEach(function(player) {
     var roll = portionsRolling[player.num];
     roll.value = playerPortion[player.num] / GRID_SIZE / GRID_SIZE;
     roll.update();
   });
-  
+
   //Zoom goes from 1 to .5, decreasing as portion goes up. TODO: maybe can modify this?
   if (portionsRolling[user.num])
-    zoom = 1 / (portionsRolling[user.num].lag + 1); 
-  
+    zoom = .5 / (portionsRolling[user.num].lag + 1);
+
   //TODO: animate player is dead. (maybe explosion?), and tail rewinds itself.
   if (user) centerOnPlayer(user, animateTo);
 }
@@ -375,7 +369,7 @@ function getBounceOffset(frame)
     offsetBounce -= BOUNCE_FRAMES[bounceNum];
     bounceNum--;
   }
-  
+
   if (bounceNum === -1)
   {
     return (offsetBounce - frame) * DROP_SPEED;
@@ -394,12 +388,7 @@ function getBounceOffset(frame)
 
 function showStats() {
   //TODO: Show score stats.
-  $("#begin").removeClass("hidden");
-  $("#begin").animate({
-    opacity: .9999
-  }, 1000, function() {
-    $("#stats").addClass("hidden").css("opacity", 0);
-  });
+  window.gameForm.show();
 }
 
 module.exports = exports = {
@@ -409,21 +398,14 @@ module.exports = exports = {
     barProportionRolling[player.num] = new Rolling(0, ANIMATE_FRAMES);
   },
   disconnect: function() {
-    //Show score stats.
-    $("#stats").removeClass("hidden");
-    $("#stats").animate({
-      opacity: .9999
-    }, 3000, function() {
-      showStats();
-      //Then fade back into the login screen.
-    });
+    window.gameForm.show();
   },
   removePlayer: function(player) {
     delete playerPortion[player.num];
     delete portionsRolling[player.num];
     delete barProportionRolling[player.num];
   },
-  
+
   setUser: function(player) {
     user = player;
     centerOnPlayer(user, offset);
@@ -435,7 +417,7 @@ module.exports = exports = {
       playerPortion[before.num]--;
     if (after)
       playerPortion[after.num]++;
-      
+
     //Queue animation
     if (before === after || !client.allowAnimation)
       return;
