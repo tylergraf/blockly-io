@@ -92,7 +92,7 @@ class BlocklyGame extends LitElement {
     }
 
     var success = false;
-    var socket = io('http://' + window.location.hostname + ':8081', {
+    var socket = io('http://' + window.location.hostname, {
       forceNew: true,
       upgrade: false,
       transports: ['websocket']

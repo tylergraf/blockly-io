@@ -43,7 +43,7 @@ io.on('connection', function(socket) {
     fn();
   });
 });
-server.listen(8081);
+// server.listen(8081);
 
 function tick() {
   games[0].tickFrame();
