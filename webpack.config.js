@@ -27,7 +27,7 @@ module.exports = (env, argv) => {
 
   if (argv.mode === 'development') {
     config.devtool = 'source-map';
-    config.watch = true;
+    // config.watch = true;
   }
 
   if (argv.mode === 'production') {
