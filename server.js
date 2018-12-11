@@ -1,34 +1,19 @@
-//TODO: rename as "blockly.io".
-var hostname = process.argv[2] || "0.0.0.0";
-var port = process.env.PORT || 3000;
+const express = require('express');
+const socketIO = require('socket.io');
 
-var finalhandler = require('finalhandler');
-var http = require('http');
-var serveStatic = require('serve-static');
+const PORT = process.env.PORT || 3000;
+const INDEX = `${__dirname}/public/index.html`;
 
-// Serve up public/ftp folder
-var serve = serveStatic('public/', {
-  'setHeaders': setHeaders
-});
+const server = express()
+  .use('/public',express.static('public'))
+  .use((req, res) => res.sendFile(INDEX))
+  .listen(PORT, () => console.log(`Listening on ${ PORT }`));
 
-function setHeaders(res, path) {
-  res.setHeader('Cache-Control', 'public, max-age=0');
-}
-
-// Create server
-var server = http.createServer(function onRequest(req, res) {
-  serve(req, res, finalhandler(req, res));
-});
-
-// Listen
-server.listen(port);
-
-server = http.createServer();
-var io = require('socket.io')(server);
+const io = socketIO(server);
 io.set('transports', ['websocket']);
 
-var Game = require('./game-server.js');
-var games = [new Game()];
+const Game = require('./game-server.js');
+const games = [new Game()];
 io.on('connection', function(socket) {
   socket.on("hello", function(data, fn) {
     //TODO: error checking.
@@ -43,11 +28,10 @@ io.on('connection', function(socket) {
     fn();
   });
 });
-// server.listen(8081);
+
 
 function tick() {
   games[0].tickFrame();
   setTimeout(tick, 1000 / 60);
 }
 tick();
-//setTimeout(tick, 1000 / 60);

@@ -92,7 +92,7 @@ class BlocklyGame extends LitElement {
     }
 
     var success = false;
-    var socket = io('http://' + window.location.hostname, {
+    var socket = io(`//${window.location.host}`, {
       forceNew: true,
       upgrade: false,
       transports: ['websocket']
@@ -136,7 +136,7 @@ class BlocklyGame extends LitElement {
     }
     let bot = e.target.bot.checked;
     window.requestAnimationFrame(()=>{
-      let url = `//${window.location.hostname}:8081`;
+      let url = `//${window.location.host}`;
       window.CLIENT.connectGame(url, name)
         .then(msg => {
           this.hide();

@@ -7,8 +7,7 @@ This is a clone of the original Paper-IO released by Voodoo, except for one aspe
 
 ```bash
 npm install
-webpack #(in one tab)
-node server.js #(in another tab)
+npm run dev
 ```
 
 ## Goals
