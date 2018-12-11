@@ -1,6 +1,9 @@
-const express = require('express');
-const socketIO = require('socket.io');
+import path from 'path';
+import express from 'express';
+import socketIO from 'socket.io';
+import Game from './game-server.mjs';
 
+const __dirname = path.dirname(new URL(import.meta.url).pathname);
 const PORT = process.env.PORT || 3000;
 const INDEX = `${__dirname}/public/index.html`;
 
@@ -12,7 +15,6 @@ const server = express()
 const io = socketIO(server);
 io.set('transports', ['websocket']);
 
-const Game = require('./game-server.js');
 const games = [new Game()];
 io.on('connection', function(socket) {
   socket.on("hello", function(data, fn) {

@@ -50,4 +50,4 @@ function isOutOfBounds(data, row, col) {
   return row < 0 || row >= data.size || col < 0 || col >= data.size;
 }
 
-module.exports = Grid;
+export {Grid};

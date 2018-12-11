@@ -1,4 +1,6 @@
 import { LitElement, html } from '@polymer/lit-element/lit-element.js';
+import io from 'socket.io-client';
+import {changeHeading, connectGame} from '../client.mjs';
 
 class BlocklyGame extends LitElement {
 
@@ -26,7 +28,7 @@ class BlocklyGame extends LitElement {
         return; //exit handler for other keys.
     }
 
-    window.CLIENT.changeHeading(newHeading);
+    changeHeading(newHeading);
   }
 
   _handleTouchStart(e){
@@ -66,7 +68,7 @@ class BlocklyGame extends LitElement {
       }
     }
 
-    window.CLIENT.changeHeading(newHeading);
+    changeHeading(newHeading);
 
     /* reset values */
     setTimeout(() => {
@@ -137,7 +139,7 @@ class BlocklyGame extends LitElement {
     let bot = e.target.bot.checked;
     window.requestAnimationFrame(()=>{
       let url = `//${window.location.host}`;
-      window.CLIENT.connectGame(url, name)
+      connectGame(url, name)
         .then(msg => {
           this.hide();
           if(bot){
@@ -163,7 +165,7 @@ class BlocklyGame extends LitElement {
       } else {
         heading++;
       }
-      window.CLIENT.changeHeading(heading);
+      changeHeading(heading);
     }, 500);
   }
   _saveName(e){

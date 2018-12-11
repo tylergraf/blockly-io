@@ -1,16 +1,12 @@
-var core = require('./game-core');
-var Player = core.Player;
-
-var io = require('socket.io-client');
-
-var GRID_SIZE = core.GRID_SIZE;
-var CELL_WIDTH = core.CELL_WIDTH;
+import {updateFrame, initPlayer, Player, GRID_SIZE, CELL_WIDTH, Grid} from './game-core/index.mjs';
+import io from 'socket.io-client';
+import renderer from './client-modes/user-mode.mjs';
 
 var running = false;
 var user, socket, frame;
 var players, allPlayers;
 
-var kills;
+export let kills;
 
 var timeout = undefined;
 var dirty = false;
@@ -18,9 +14,9 @@ var deadFrames = 0;
 var requesting = -1; //frame that we are requesting at.
 var frameCache = []; //Frames after our request.
 
-var allowAnimation = false;
+export let allowAnimation = false;
 
-var grid = new core.Grid(core.GRID_SIZE, function(row, col, before, after) {
+export const grid = new Grid(GRID_SIZE, function(row, col, before, after) {
   invokeRenderer('updateGrid', [row, col, before, after]);
 });
 
@@ -63,7 +59,7 @@ if (!requestAnimationFrame) {
 }
 
 //Public API
-function connectGame(url, name, callback) {
+export const connectGame = function(url, name, callback) {
   if (running)
     return; //Prevent multiple runs.
   running = true;
@@ -162,7 +158,7 @@ function connectGame(url, name, callback) {
 
 }
 
-function changeHeading(newHeading) {
+export const changeHeading = function(newHeading) {
   if (!user || user.dead)
     return;
   if (newHeading === user.currentHeading || ((newHeading % 2 === 0) ^
@@ -180,11 +176,11 @@ function changeHeading(newHeading) {
   }
 }
 
-function getUser() {
+export const getUser = function() {
   return user;
 }
 
-function getOthers() {
+export const getOthers = function() {
   var ret = [];
   for (var p of players) {
     if (p !== user) {
@@ -194,7 +190,7 @@ function getOthers() {
   return ret;
 }
 
-function getPlayers() {
+export const getPlayers = function() {
   return players.slice();
 }
 
@@ -208,9 +204,8 @@ function addPlayer(player) {
 }
 
 function invokeRenderer(name, args) {
-  var renderer = exports.renderer;
   if (renderer && typeof renderer[name] === 'function')
-    renderer[name].apply(exports, args);
+    renderer[name].apply(this, args);
 }
 
 
@@ -238,7 +233,7 @@ function processFrame(data) {
         return;
       var pl = new Player(grid, p);
       addPlayer(pl);
-      core.initPlayer(grid, pl);
+      initPlayer(grid, pl);
     });
   }
 
@@ -336,7 +331,7 @@ function setUser(player) {
 
 function update() {
   var dead = [];
-  core.updateFrame(grid, players, dead, function addKill(killer, other) {
+  updateFrame(grid, players, dead, function addKill(killer, other) {
     if (players[killer] === user && killer !== other)
       kills++;
   });
@@ -352,34 +347,3 @@ function update() {
 
   invokeRenderer('update', [frame]);
 }
-
-//Export stuff
-var funcs = [connectGame, changeHeading, getOthers, getPlayers, getUser];
-funcs.forEach(function(f) {
-  exports[f.name] = f;
-});
-
-exports.renderer = null;
-Object.defineProperties(exports, {
-  allowAnimation: {
-    get: function() {
-      return false;
-    },
-    set: function(val) {
-      allowAnimation = !!val;
-    },
-    enumerable: true
-  },
-  grid: {
-    get: function() {
-      return grid;
-    },
-    enumerable: true
-  },
-  kills: {
-    get: function() {
-      return kills;
-    },
-    enumerable: true
-  }
-});

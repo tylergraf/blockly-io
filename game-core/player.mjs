@@ -1,10 +1,8 @@
-var Stack = require("./stack");
-var Color = require("./color");
-var Grid = require("./grid.js");
-var consts = require("./game-consts.js");
+import Stack from "./stack.mjs";
+import {Color} from "./color.mjs";
+import {Grid} from "./grid.mjs";
+import {GRID_SIZE, CELL_WIDTH} from "./game-consts.mjs";
 
-var GRID_SIZE = consts.GRID_SIZE;
-var CELL_WIDTH = consts.CELL_WIDTH;
 var NEW_PLAYER_LAG = 60; //wait for a second at least.
 
 function defineGetter(getter) {
@@ -504,4 +502,4 @@ function move(data) {
     this.tail.addTail(heading);
 }
 
-module.exports = Player;
+export {Player};

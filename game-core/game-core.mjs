@@ -2,13 +2,13 @@ var ANIMATE_FRAMES = 24;
 var CELL_WIDTH = 40;
 
 //TODO: remove constants.
-exports.initPlayer = function(grid, player) {
+export const initPlayer = function(grid, player) {
   for (var dr = -1; dr <= 1; dr++)
     for (var dc = -1; dc <= 1; dc++)
       if (!grid.isOutOfBounds(dr + player.row, dc + player.col))
         grid.set(dr + player.row, dc + player.col, player);
 };
-exports.updateFrame = function(grid, players, dead, notifyKill) {
+export const updateFrame = function(grid, players, dead, notifyKill) {
   var adead = [];
   if (dead instanceof Array)
     adead = dead;

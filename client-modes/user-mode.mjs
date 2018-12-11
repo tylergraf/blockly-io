@@ -1,13 +1,9 @@
 /* global $ */
 
-var core = require("../game-core");
-var client = require("../client");
-var Rolling = require("./rolling");
+import {GRID_SIZE, CELL_WIDTH, SPEED, BORDER_WIDTH, Grid, Color} from "../game-core/index.mjs";
+import {grid, allowAnimation, kills, getPlayers} from '../client.mjs';
+import {Rolling} from './rolling.mjs';
 
-var GRID_SIZE = core.GRID_SIZE;
-var CELL_WIDTH = core.CELL_WIDTH;
-var SPEED = core.SPEED;
-var BORDER_WIDTH = core.BORDER_WIDTH;
 var SHADOW_OFFSET = 5;
 var ANIMATE_FRAMES = 24;
 var BOUNCE_FRAMES = [8, 4];
@@ -33,7 +29,6 @@ setTimeout(function () {
 
 var animateGrid, playerPortion, portionsRolling,
   barProportionRolling,  animateTo, offset, user, zoom, showedDead;
-var grid = client.grid;
 
 function updateSize()
 {
@@ -56,7 +51,7 @@ function updateSize()
 }
 
 function reset() {
-  animateGrid = new core.Grid(GRID_SIZE);
+  animateGrid = new Grid(GRID_SIZE);
 
   playerPortion = [];
   portionsRolling = [];
@@ -112,12 +107,12 @@ function paintGrid(ctx)
       var x = c * CELL_WIDTH, y = r * CELL_WIDTH, baseColor, shadowColor;
 
       var animateSpec = animateGrid.get(r, c);
-      if (client.allowAnimation && animateSpec)
+      if (allowAnimation && animateSpec)
       {
         if (animateSpec.before) //fading animation
         {
           var frac = (animateSpec.frame / ANIMATE_FRAMES);
-          var back = new core.Color(.58, .41, .92, 1);
+          var back = new Color(.58, .41, .92, 1);
           baseColor = animateSpec.before.lightBaseColor.interpolateToString(back, frac);
           shadowColor = animateSpec.before.shadowColor.interpolateToString(back, frac);
         }
@@ -143,7 +138,7 @@ function paintGrid(ctx)
     }
   }
 
-  if (!client.allowAnimation)
+  if (!allowAnimation)
     return;
 
   //Paint squares with drop in animation.
@@ -154,7 +149,7 @@ function paintGrid(ctx)
       animateSpec = animateGrid.get(r, c);
       x = c * CELL_WIDTH, y = r * CELL_WIDTH;
 
-      if (animateSpec && client.allowAnimation)
+      if (animateSpec && allowAnimation)
       {
         var viewable = r >= minRow && r < maxRow && c >= minCol && c < maxCol;
         if (animateSpec.after && viewable)
@@ -211,13 +206,13 @@ function paintUIBar(ctx) {
   ctx.fillText((userPortions * 100).toFixed(3) + "%", 5 + barOffset, CELL_WIDTH - 5);
 
   //Number of kills
-  var killsText = "Kills: " + client.kills;
+  var killsText = "Kills: " + kills;
   var killsOffset = 20 + BAR_WIDTH + barOffset;
   ctx.fillText(killsText, killsOffset, CELL_WIDTH - 5);
 
   //Calcuate rank
   var sorted = [];
-  client.getPlayers().forEach(function(val) {
+  getPlayers().forEach(function(val) {
     sorted.push({player: val, portion: playerPortion[val.num]});
   });
   sorted.sort(function(a, b) {
@@ -233,7 +228,7 @@ function paintUIBar(ctx) {
   if (sorted.length > 0)
   {
     var maxPortion = sorted[0].portion;
-    client.getPlayers().forEach(function(player) {
+    getPlayers().forEach(function(player) {
       var rolling = barProportionRolling[player.num];
       rolling.value = playerPortion[player.num] / maxPortion;
       rolling.update();
@@ -289,7 +284,7 @@ function paint(ctx)
   ctx.translate(-offset[0] + BORDER_WIDTH, -offset[1] + BORDER_WIDTH);
 
   paintGrid(ctx);
-  client.getPlayers().forEach(function (p) {
+  getPlayers().forEach(function (p) {
     var fr = p.waitLag;
     if (fr < ANIMATE_FRAMES)
       p.render(ctx, fr / ANIMATE_FRAMES);
@@ -323,7 +318,7 @@ function update() {
   {
     if (animateTo[i] !== offset[i])
     {
-      if (client.allowAnimation)
+      if (allowAnimation)
       {
         var delta = animateTo[i] - offset[i];
         var dir = Math.sign(delta);
@@ -336,7 +331,7 @@ function update() {
   }
 
   //Calculate player portions.
-  client.getPlayers().forEach(function(player) {
+  getPlayers().forEach(function(player) {
     var roll = portionsRolling[player.num];
     roll.value = playerPortion[player.num] / GRID_SIZE / GRID_SIZE;
     roll.update();
@@ -391,7 +386,7 @@ function showStats() {
   window.gameForm.show();
 }
 
-module.exports = exports = {
+export default {
   addPlayer: function(player) {
     playerPortion[player.num] = 0;
     portionsRolling[player.num] = new Rolling(9 / GRID_SIZE / GRID_SIZE, ANIMATE_FRAMES);
@@ -419,7 +414,7 @@ module.exports = exports = {
       playerPortion[after.num]++;
 
     //Queue animation
-    if (before === after || !client.allowAnimation)
+    if (before === after || !allowAnimation)
       return;
     animateGrid.set(row, col, {
       before: before,

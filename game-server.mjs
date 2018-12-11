@@ -1,8 +1,13 @@
-var core = require("./game-core");
-
-var GRID_SIZE = core.GRID_SIZE;
-var CELL_WIDTH = core.CELL_WIDTH;
-var MAX_PLAYERS = core.MAX_PLAYERS;
+import {
+  initPlayer,
+  updateFrame,
+  GRID_SIZE,
+  CELL_WIDTH,
+  MAX_PLAYERS,
+  Color,
+  Grid,
+  Player
+} from './game-core/index.mjs';
 
 var HUES = [0, 10, 20, 25, 30, 35, 40, 45, 50, 60, 70, 100, 110, 120, 125, 130,
   135, 140, 145, 150, 160, 170, 180, 190, 200, 210, 220
@@ -22,7 +27,7 @@ function Game(id) {
   i = 0;
   for (var s = 0; s < SATS.length; s++)
     for (var h = 0; h < HUES.length; h++)
-      possColors[i++] = new core.Color(HUES[h], SATS[s], .5, 1);
+      possColors[i++] = new Color(HUES[h], SATS[s], .5, 1);
 
   //Shuffle the colors.
   for (var i = 0; i < possColors.length * 50; i++) {
@@ -40,7 +45,7 @@ function Game(id) {
   var frame = 0;
 
   var filled = 0;
-  var grid = new core.Grid(GRID_SIZE, function(row, col, before, after) {
+  var grid = new Grid(GRID_SIZE, function(row, col, before, after) {
     if (!!after ^ !!before) {
       if (after)
         filled++;
@@ -70,13 +75,13 @@ function Game(id) {
       base: possColors.shift()
     };
 
-    var p = new core.Player(grid, params);
+    var p = new Player(grid, params);
     p.tmpHeading = params.currentHeading;
     p.client = client;
     players.push(p);
     newPlayers.push(p);
     nextInd++;
-    core.initPlayer(grid, p);
+    initPlayer(grid, p);
 
     if (p.name.indexOf("BOT") == -1) {
       log((p.name || "Unnamed") + " (" + p.num + ") joined.");
@@ -242,7 +247,7 @@ function Game(id) {
 
   function update() {
     var dead = [];
-    core.updateFrame(grid, players, dead);
+    updateFrame(grid, players, dead);
     for (var pl of dead) {
       if (!pl.handledDead) {
         possColors.push(pl.baseColor);
@@ -311,4 +316,5 @@ function findEmpty(grid) {
     return available[Math.floor(available.length * Math.random())];
 }
 
-module.exports = Game;
+// module.exports = Game;
+export default Game;

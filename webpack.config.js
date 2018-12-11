@@ -3,10 +3,7 @@ const MinifyPlugin = require("babel-minify-webpack-plugin");
 
 const config = {
   mode: "development",
-  entry: {
-    game: "./game-client.js",
-    toast: './src/index.js'
-  },
+  entry: './src/index.js',
   output: {
     "path": __dirname + '/public/dist',
     "filename": "[name]-bundle.js"
@@ -14,7 +11,7 @@ const config = {
   module: {
     rules: [
       {
-        test: /(client-modes|game-core).*\.js$/,
+        test: /(client-modes|game-core).*\.mjs$/,
         use: {
           loader: 'babel-loader'
         }
@@ -32,7 +29,7 @@ module.exports = (env, argv) => {
 
   if (argv.mode === 'production') {
     config.plugins = [
-      new MinifyPlugin()
+      // new MinifyPlugin()
     ]
   }
 
