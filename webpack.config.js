@@ -1,4 +1,7 @@
-module.exports = {
+const UglifyJsPlugin = require('uglifyjs-webpack-plugin');
+const MinifyPlugin = require("babel-minify-webpack-plugin");
+
+const config = {
   mode: "development",
   entry: {
     game: "./game-client.js",
@@ -8,20 +11,30 @@ module.exports = {
     "path": __dirname + '/public/dist',
     "filename": "[name]-bundle.js"
   },
-  // watch: true,
-  "devtool": "source-map",
-  // "module": {
-  //   "rules": [{
-  //     "test": /\.js$/,
-  //     "exclude": /node_modules/,
-  //     "use": {
-  //       "loader": "babel-loader",
-  //       "options": {
-  //         "presets": [
-  //           "env"
-  //         ]
-  //       }
-  //     }
-  //   }]
-  // }
-}
+  module: {
+    rules: [
+      {
+        test: /(client-modes|game-core).*\.js$/,
+        use: {
+          loader: 'babel-loader'
+        }
+      }
+    ]
+  },
+};
+
+module.exports = (env, argv) => {
+
+  if (argv.mode === 'development') {
+    config.devtool = 'source-map';
+    config.watch = true;
+  }
+
+  if (argv.mode === 'production') {
+    config.plugins = [
+      new MinifyPlugin()
+    ]
+  }
+
+  return config;
+};
