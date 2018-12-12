@@ -332,8 +332,9 @@ function setUser(player) {
 function update() {
   var dead = [];
   updateFrame(grid, players, dead, function addKill(killer, other) {
-    if (players[killer] === user && killer !== other)
+    if (players[killer] === user && killer !== other){
       kills++;
+    }
   });
   dead.forEach(function(player) {
     console.log((player.name || 'Unnamed') + ' is dead');

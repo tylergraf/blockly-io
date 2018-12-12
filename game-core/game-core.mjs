@@ -24,8 +24,9 @@ export const updateFrame = function(grid, players, dead, notifyKill) {
   //Move players.
   var tmp = players.filter(function(val) {
     val.move();
-    if (val.dead)
+    if (val.dead){
       adead.push(val);
+    }
     return !val.dead;
   });
 
